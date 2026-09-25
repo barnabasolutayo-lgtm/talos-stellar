@@ -46,6 +46,13 @@ async function bundleWithEsbuild() {
       sourcemap: false,
       legalComments: "none",
       allowOverwrite: true,
+      define: {
+        "process.env.NODE_ENV": '"production"',
+        "process.env": "{}",
+      },
+      footer: {
+        js: "if (typeof globalThis !== 'undefined') { globalThis.TalosSDK = TalosSDK; } if (typeof window !== 'undefined') { window.TalosSDK = TalosSDK; }",
+      },
     });
     console.log("[build:browser] bundled via esbuild ->", BUNDLE_OUT);
     return true;
