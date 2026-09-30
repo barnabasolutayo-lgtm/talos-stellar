@@ -35,8 +35,8 @@ import { registerTx } from "@/lib/reconciler";
  * 6. Commit side effects in a single DB transaction (patron upsert + revenue
  *    insert + purchase status=completed + cached response)
  */
-export async function POST(
-  request: Request,
+async function _POST(
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
@@ -418,3 +418,5 @@ export async function POST(
   successRes.headers.set("X-Idempotent-Replayed", "false");
   return successRes;
 }
+
+export const POST = withRequestId(_POST);
