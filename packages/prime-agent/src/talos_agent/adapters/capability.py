@@ -744,6 +744,10 @@ class AdapterInvocationStore:
                         lease.isoformat(),
                     ),
                 )
+                self._conn.execute(
+                    "UPDATE adapter_invocations SET attempt_count = 1 WHERE operation_id = ?",
+                    (operation_id,),
+                )
                 self._conn.commit()
                 return
             if (
@@ -770,6 +774,10 @@ class AdapterInvocationStore:
                     """,
                     (operation_id,),
                 )
+                self._conn.execute(
+                    "UPDATE adapter_invocations SET attempt_count = attempt_count + 1 WHERE operation_id = ?",
+                    (operation_id,),
+                )
                 self._conn.commit()
                 raise IndeterminateInvocationError(
                     "adapter operation lease expired; reconcile before retry"
@@ -782,6 +790,10 @@ class AdapterInvocationStore:
                 WHERE operation_id = ? AND state = 'failed'
                 """,
                 (owner_id, lease.isoformat(), operation_id),
+            )
+            self._conn.execute(
+                "UPDATE adapter_invocations SET attempt_count = attempt_count + 1 WHERE operation_id = ?",
+                (operation_id,),
             )
             self._conn.commit()
         except sqlite3.OperationalError as exc:
